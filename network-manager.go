@@ -189,6 +189,7 @@ func deleteNetworkCluster(networkConfig *pcc.NetworkConfiguration) (err error) {
 func verifyNetworkingUninstallation(networkConfig *pcc.NetworkConfiguration) (err error) {
 	fmt.Printf("Verifying network cluster[%v] uninstallation...Timeout:[%v sec]\n", networkConfig.ClusterName, pcc.NETWORK_3_NODE_UNINSTALLATION_TIMEOUT)
 	_, err = networkConfig.PccClient.GetNetworkCluster(networkConfig.ClusterName)
+		if strings.Contains(err.Error(), "not found") {err = nil}
 	if err != nil {
 		errMsg := fmt.Sprintf("network cluster[%v] uninstallation verification failed...ERROR: %v", networkConfig.ClusterName, err)
 		err = fmt.Errorf("%v", errMsg)
@@ -226,7 +227,7 @@ func getNetworkNodesList(networkConfig *pcc.NetworkConfiguration) ([]pcc.Network
 	)
 	var j = 0
 	for _, i := range Env.Invaders {
-		sNodes[j] = pcc.NetworkNodes{ID: NodebyHostIP[i.HostIp]}
+		sNodes[j] = pcc.NetworkNodes{ID: i.Id}
 		j++
 		if j == DIM {
 			nodesSetCompleted = true
@@ -239,7 +240,7 @@ func getNetworkNodesList(networkConfig *pcc.NetworkConfiguration) ([]pcc.Network
 		if nodesSetCompleted {
 			continue
 		}
-		sNodes[j] = pcc.NetworkNodes{ID: NodebyHostIP[i.HostIp]}
+		sNodes[j] = pcc.NetworkNodes{ID: i.Id}
 		j++
 		if j == DIM {
 			nodesSetCompleted = true
