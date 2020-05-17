@@ -227,7 +227,7 @@ func getNetworkNodesList(networkConfig *pcc.NetworkConfiguration) ([]pcc.Network
 	)
 	var j = 0
 	for _, i := range Env.Invaders {
-		sNodes[j] = pcc.NetworkNodes{ID: i.Id}
+		sNodes[j] = pcc.NetworkNodes{ID: NodebyHostIP[i.HostIp]}
 		j++
 		if j == DIM {
 			nodesSetCompleted = true
@@ -240,7 +240,7 @@ func getNetworkNodesList(networkConfig *pcc.NetworkConfiguration) ([]pcc.Network
 		if nodesSetCompleted {
 			continue
 		}
-		sNodes[j] = pcc.NetworkNodes{ID: i.Id}
+		sNodes[j] = pcc.NetworkNodes{ID: NodebyHostIP[i.HostIp]}
 		j++
 		if j == DIM {
 			nodesSetCompleted = true
