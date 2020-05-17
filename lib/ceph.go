@@ -113,10 +113,6 @@ type CephConfiguration struct {
 	ClusterId        uint64          `json:"clusterId"`
 	HighAvailability bool            `json:"highAvailability"`
 	NumberOfNodes    int             `json:"numberOfNodes"`
-	PublicNetwork    string          `json:"publicNetwork"`
-	ClusterNetwork   string          `json:"clusterNetwork"`
-	IgwPolicy        string          `json:"igwPolicy"`
-	ControlCIDR      string          `json:"controlCIDR"`
 	Tests            map[string]bool `json:"tests"`
 	PccClient        *PccClient
 }

@@ -151,13 +151,6 @@ func getCephCreateClusterRequest(cephConfig *pcc.CephConfiguration) (createReque
 		Nodes: sNodes,
 		Tags:  pq.StringArray{"ROTATIONAL", "SATA", "PCIe"},
 	}
-	createRequest.PublicNetwork = cephConfig.PublicNetwork
-	createRequest.ClusterNetwork = cephConfig.ClusterNetwork
-	createRequest.ControlCIDR = cephConfig.ControlCIDR
-	createRequest.IgwPolicy = cephConfig.IgwPolicy
-	if createRequest.ClusterNetwork == "" || createRequest.PublicNetwork == "" {
-		err = fmt.Errorf("Invalid Public or Cluster Network")
-	}
 	return
 }
 
