@@ -101,8 +101,8 @@ func parseK8sAppConfig(t *testing.T) {
 	}
 	if identifier != "" {
 		*appConfig = Env.K8sAppConfiguration
-		appConfig.PccClient = Pcc
-		if err = Pcc.ValidateAppConfig(appConfig, identifier); err != nil {
+		appConfig.PccClient = pcc.Pcc
+		if err = pcc.Pcc.ValidateAppConfig(appConfig, identifier); err != nil {
 			err = fmt.Errorf("Failed to validate k8s app Test config..ERROR:%v", err)
 		}
 	} else {

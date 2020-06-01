@@ -20,6 +20,8 @@ type PccClient struct {
 	RestClient *http.PlatinaRestService
 }
 
+var Pcc *PccClient
+
 func (pcc *PccClient) getClient() (rc *http.PlatinaRestService) {
 	if pcc.RestClient == nil {
 		var prs http.PlatinaRestService

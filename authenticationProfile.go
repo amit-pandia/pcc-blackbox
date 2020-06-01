@@ -47,7 +47,7 @@ func addAuthProfile(t *testing.T) {
 	}
 	authProfile = Env.AuthenticationProfile
 
-	exist, certificate, err := Pcc.FindCertificate(LDAP_CERT_FILENAME)
+	exist, certificate, err := pcc.Pcc.FindCertificate(LDAP_CERT_FILENAME)
 	if err != nil {
 		assert.Fatalf("Get certificate %s failed\n%v\n",
 			LDAP_CERT_FILENAME, err)
@@ -69,14 +69,14 @@ func addAuthProfile(t *testing.T) {
 	for i := 1; ; i++ {
 		label = fmt.Sprintf(authProfile.Name+"_%d", i)
 		CurrentAuthProfileName = label
-		existingProfile, _ := Pcc.GetAuthProfileByName(label)
+		existingProfile, _ := pcc.Pcc.GetAuthProfileByName(label)
 		if existingProfile == nil {
 			break
 		}
 	}
 	authProfile.Name = label
 
-	err = Pcc.AddAuthProfile(authProfile)
+	err = pcc.Pcc.AddAuthProfile(authProfile)
 	if err != nil {
 		assert.Fatalf("Error: %v\n", err)
 		return
@@ -93,7 +93,7 @@ func delAllProfiles(t *testing.T) {
 		id           uint64
 	)
 
-	authProfiles, err = Pcc.GetAuthProfiles()
+	authProfiles, err = pcc.Pcc.GetAuthProfiles()
 	if err != nil {
 		assert.Fatalf("Failed to get auth profiles: %v\n", err)
 		return
@@ -102,7 +102,7 @@ func delAllProfiles(t *testing.T) {
 	for _, aP := range authProfiles {
 		id = aP.ID
 		fmt.Printf("Deleting auth profile %v\n", aP.Name)
-		err = Pcc.DelAuthProfile(id)
+		err = pcc.Pcc.DelAuthProfile(id)
 		if err != nil {
 			assert.Fatalf("Failed to delete auth profile %v: %v\n",
 				id, err)

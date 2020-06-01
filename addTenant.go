@@ -28,19 +28,19 @@ func addTenantA(t *testing.T) {
 	for _, i := range Env.Servers {
 		nodes = append(nodes, NodebyHostIP[i.HostIp])
 	}
-	err = Pcc.AssignTenantNodes(1, nodes)
+	err = pcc.Pcc.AssignTenantNodes(1, nodes)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
 
 	fmt.Println("Delete existing tenants")
-	tenants, err = Pcc.GetTenants()
+	tenants, err = pcc.Pcc.GetTenants()
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
 	for _, t := range tenants {
 		fmt.Printf("delete tenant %v\n", t.Name)
-		Pcc.DelTenant(t.ID)
+		pcc.Pcc.DelTenant(t.ID)
 	}
 
 	addReq = pcc.Tenant{}
@@ -48,14 +48,14 @@ func addTenantA(t *testing.T) {
 	addReq.Description = "a tenant of ROOT"
 
 	fmt.Printf("add tenant %v\n", addReq.Name)
-	_, err = Pcc.AddTenant(addReq)
+	_, err = pcc.Pcc.AddTenant(addReq)
 	if err != nil {
 		assert.Fatalf("Failed to add tenant %v: %v\n",
 			addReq.Name, err)
 	}
 
 	fmt.Printf("find tenant %v\n", addReq.Name)
-	tenant, err = Pcc.FindTenant(addReq.Name)
+	tenant, err = pcc.Pcc.FindTenant(addReq.Name)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
@@ -66,25 +66,25 @@ func addTenantA(t *testing.T) {
 	addReq2.Parent = tenant.ID
 
 	fmt.Printf("add tenant %v\n", addReq.Name)
-	_, err = Pcc.AddTenant(addReq2)
+	_, err = pcc.Pcc.AddTenant(addReq2)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
 
 	fmt.Printf("find tenant %v\n", addReq2.Name)
-	tenant2, err = Pcc.FindTenant(addReq2.Name)
+	tenant2, err = pcc.Pcc.FindTenant(addReq2.Name)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
 	fmt.Printf("tenant %v, id %v\n", tenant2.Name, tenant2.ID)
 
 	fmt.Printf("deleting tenant %v\n", tenant2.Name)
-	err = Pcc.DelTenant(tenant2.ID)
+	err = pcc.Pcc.DelTenant(tenant2.ID)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	} else {
 	}
-	_, err = Pcc.FindTenant(addReq2.Name)
+	_, err = pcc.Pcc.FindTenant(addReq2.Name)
 	if err != nil {
 		fmt.Printf("FindTenant failed as exepted on deleted tenant\n")
 	} else {
@@ -95,7 +95,7 @@ func addTenantA(t *testing.T) {
 	for _, i := range Env.Servers {
 		nodes = append(nodes, NodebyHostIP[i.HostIp])
 	}
-	err = Pcc.AssignTenantNodes(tenant.ID, nodes)
+	err = pcc.Pcc.AssignTenantNodes(tenant.ID, nodes)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
@@ -103,7 +103,7 @@ func addTenantA(t *testing.T) {
 	source := fmt.Sprintf("https://%v:7654/setPass", Env.PccIp)
 
 	// remove existing users
-	if users, err := Pcc.GetUsers(); err != nil {
+	if users, err := pcc.Pcc.GetUsers(); err != nil {
 		assert.Fatalf("Failed to get users: %v\n", err)
 		return
 	} else {
@@ -111,7 +111,7 @@ func addTenantA(t *testing.T) {
 			if u.UserName == "admin" {
 				continue
 			}
-			err = Pcc.DelUser(u.UserName)
+			err = pcc.Pcc.DelUser(u.UserName)
 			if err != nil {
 				assert.Fatalf("Failed to delete user %v: %v\n",
 					u.UserName, err)
@@ -132,7 +132,7 @@ func addTenantA(t *testing.T) {
 		TenantId:  tenant.ID,
 		Source:    source,
 	}
-	_, err = Pcc.AddUser(addUser)
+	_, err = pcc.Pcc.AddUser(addUser)
 	if err != nil {
 		assert.Fatalf("Failed to add user %v: %v\n", addUser.UserName,
 			err)
@@ -151,7 +151,7 @@ func addTenantA(t *testing.T) {
 		TenantId:  tenant.ID,
 		Source:    source,
 	}
-	if _, err = Pcc.AddUser(addUser2); err != nil {
+	if _, err = pcc.Pcc.AddUser(addUser2); err != nil {
 		assert.Fatalf("Failed to add user %v: %v\n", addUser2.UserName,
 			err)
 		return
@@ -161,12 +161,12 @@ func addTenantA(t *testing.T) {
 	newName := "Mr Bart"
 	addUser.LastName = newName
 
-	if err = Pcc.UpdateUser(addUser); err != nil {
+	if err = pcc.Pcc.UpdateUser(addUser); err != nil {
 		assert.Fatalf("Failed to update user %v: %v\n", newName, err)
 		return
 	}
 
-	if users, err := Pcc.GetUsers(); err == nil {
+	if users, err := pcc.Pcc.GetUsers(); err == nil {
 		found := false
 		for _, u := range users {
 			if u.UserName == addUser.UserName {
@@ -188,7 +188,7 @@ func addTenantA(t *testing.T) {
 		assert.Fatalf("%v\n", err)
 	}
 
-	err = Pcc.DelUser(addUser.UserName)
+	err = pcc.Pcc.DelUser(addUser.UserName)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
@@ -202,13 +202,13 @@ func delAllTenants(t *testing.T) {
 		err     error
 	)
 
-	if tenants, err = Pcc.GetTenants(); err == nil {
+	if tenants, err = pcc.Pcc.GetTenants(); err == nil {
 		for _, t := range tenants {
 			if t.Protect {
 				continue
 			}
 			id := t.ID
-			if err = Pcc.DelTenant(id); err != nil {
+			if err = pcc.Pcc.DelTenant(id); err != nil {
 				assert.Fatalf("Failed to DelTenant %v: %v\n", id, err)
 				return
 			}
@@ -226,13 +226,13 @@ func delAllUsers(t *testing.T) {
 		err   error
 	)
 
-	if users, err = Pcc.GetUsers(); err == nil {
+	if users, err = pcc.Pcc.GetUsers(); err == nil {
 		for _, u := range users {
 			if u.Protect {
 				continue
 			}
 			username := u.UserName
-			if err = Pcc.DelUser(username); err != nil {
+			if err = pcc.Pcc.DelUser(username); err != nil {
 				assert.Fatalf("failed to Delete user %v: %v\n", username, err)
 				return
 			}

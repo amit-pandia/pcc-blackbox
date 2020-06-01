@@ -114,7 +114,6 @@ type CephConfiguration struct {
 	HighAvailability bool            `json:"highAvailability"`
 	NumberOfNodes    int             `json:"numberOfNodes"`
 	Tests            map[string]bool `json:"tests"`
-	PccClient        *PccClient
 }
 
 func (config *CephConfiguration) GetCephClusterName() string {
@@ -335,7 +334,7 @@ func (p *PccClient) DeleteCephFS(id uint64) (err error) {
 }
 
 func (config *CephConfiguration) VerifyCeph(startTime time.Time, action string, name string) (s EventStatus, err error) {
-	s = config.PccClient.Verify(startTime, config.getCephVerifier(action, name))
+	s = Pcc.Verify(startTime, config.getCephVerifier(action, name))
 
 	failed := !(strings.Contains(s.Msg, CEPH_INSTALLATION_SUCCESS_NOTIFICATION) ||
 		strings.Contains(s.Msg, CEPH_UNINSTALLATION_SUCCESS_NOTIFICATION) ||

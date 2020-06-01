@@ -21,7 +21,7 @@ func getSecKeys(t *testing.T) {
 		err     error
 	)
 
-	secKeys, err = Pcc.GetSecurityKeys()
+	secKeys, err = pcc.Pcc.GetSecurityKeys()
 	if err != nil {
 		assert.Fatalf("Error in retrieving Security Keys: %v\n", err)
 		return
@@ -36,7 +36,7 @@ func getSecKeys(t *testing.T) {
 
 func getFirstKey() (sKey pcc.SecurityKey, err error) {
 	var secKeys []pcc.SecurityKey
-	if secKeys, err = Pcc.GetSecurityKeys(); err == nil {
+	if secKeys, err = pcc.Pcc.GetSecurityKeys(); err == nil {
 		if len(secKeys) == 0 {
 			err = fmt.Errorf("key not found")
 		} else {

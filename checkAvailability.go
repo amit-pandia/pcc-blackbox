@@ -39,15 +39,15 @@ func checkNodeConnectionStatus(status string, host string) (err error) {
 	node = &pcc.NodeWithKubernetes{}
 	node.Host = host
 
-	if err = Pcc.AddNode(node); err == nil {
+	if err = pcc.Pcc.AddNode(node); err == nil {
 		defer func() { // delete the node
-			Pcc.DeleteNode(node.Id)
+			pcc.Pcc.DeleteNode(node.Id)
 		}()
 
 		fmt.Printf("node [%s] added with id [%d]. Waiting for connection status [%s]\n", node.Host, node.Id, status)
 		for i := 1; i <= 20; i++ { // wait for the status
 			time.Sleep(time.Second * time.Duration(10))
-			if node, err = Pcc.GetNode(node.Id); err == nil && node.NodeAvailabilityStatus != nil {
+			if node, err = pcc.Pcc.GetNode(node.Id); err == nil && node.NodeAvailabilityStatus != nil {
 				connectionStatus := node.NodeAvailabilityStatus.ConnectionStatus
 				fmt.Printf("Connection status for node %s is %s\n", host, connectionStatus)
 				if strings.Compare(strings.ToLower(connectionStatus), status) == 0 {
@@ -69,7 +69,7 @@ func checkAgentAndCollectorRestore(t *testing.T) {
 	fmt.Println("\nAVAILABILITY: checking the agent/collector restore")
 	var wg sync.WaitGroup
 
-	if nodes, err := Pcc.GetNodes(); err == nil {
+	if nodes, err := pcc.Pcc.GetNodes(); err == nil {
 		if len(*nodes) > 0 {
 			node := (*nodes)[0] // get the first node
 			wg.Add(2)
@@ -100,7 +100,7 @@ func checkRestore(service string, path string, node *pcc.NodeWithKubernetes) err
 	if _, stderr, err := ssh.Run(node.Host, fmt.Sprintf("sudo rm -f /opt/platina/pcc/bin/%s && ps auxww | grep %s | grep -v grep | grep -v ansible | awk '{print $2}' | xargs sudo kill -9", path, path)); err == nil {
 		fmt.Println(fmt.Sprintf("The %s:%s was correctly killed and removed from node %d:%s", service, path, node.Id, node.Name))
 
-		if check, _ := Pcc.WaitForInstallation(node.Id, 60*10, service, "", nil); check {
+		if check, _ := pcc.Pcc.WaitForInstallation(node.Id, 60*10, service, "", nil); check {
 			fmt.Println(fmt.Sprintf("The PCC restored the [%s] on the node [%d:%s]", service, node.Id, node.Name))
 			return nil
 		} else {

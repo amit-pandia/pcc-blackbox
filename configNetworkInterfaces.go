@@ -35,7 +35,7 @@ func configNetworkInterfaces(t *testing.T) {
 		)
 
 		id := NodebyHostIP[node.HostIp]
-		if ifaces, err = Pcc.GetIfacesByNodeId(id); err != nil {
+		if ifaces, err = pcc.Pcc.GetIfacesByNodeId(id); err != nil {
 			assert.Fatalf("Error retrieving node %s id[%d] interfaces\n %v", node.HostIp, id, err)
 			return
 		}
@@ -104,7 +104,7 @@ func configNodeInterfaces(t *testing.T, skipManagement bool, nodeId uint64, Host
 		if serverInterfaces[j].IsManagement && !skipManagement {
 			continue // don't mess with management
 		}
-		iface, err = Pcc.GetIfaceByMacAddress(mac, ifaces)
+		iface, err = pcc.Pcc.GetIfaceByMacAddress(mac, ifaces)
 		if err != nil {
 			assert.Fatalf("Error in retrieving interface having "+
 				"MacAddress: %v for node %v id[%v]",
@@ -118,7 +118,7 @@ func configNodeInterfaces(t *testing.T, skipManagement bool, nodeId uint64, Host
 		fmt.Printf("Configuring node %v interface %v %v\n", nodeId,
 			iface.Interface.Name, ifaceRequest)
 
-		if err := Pcc.SetIface(ifaceRequest); err != nil {
+		if err := pcc.Pcc.SetIface(ifaceRequest); err != nil {
 			assert.Fatalf("Error setting interface %v for node "+
 				"%v id[%v]: %v\n", ifaceRequest, HostIp,
 				nodeId, err)
@@ -127,7 +127,7 @@ func configNodeInterfaces(t *testing.T, skipManagement bool, nodeId uint64, Host
 	}
 
 	fmt.Printf("Apply interface changes for node %d\n", nodeId)
-	if err = Pcc.ApplyIface(nodeId); err != nil {
+	if err = pcc.Pcc.ApplyIface(nodeId); err != nil {
 		assert.Fatalf("Interface apply failed: %v\n", err)
 		return
 	}
@@ -135,7 +135,7 @@ func configNodeInterfaces(t *testing.T, skipManagement bool, nodeId uint64, Host
 
 func validateIfaceConfig(intfReq pcc.InterfaceRequest) (err error) {
 
-	iface, err := Pcc.GetIfaceById(intfReq.NodeId, intfReq.InterfaceId)
+	iface, err := pcc.Pcc.GetIfaceById(intfReq.NodeId, intfReq.InterfaceId)
 	if err != nil {
 		return
 	}
@@ -251,7 +251,7 @@ func serverConfigLoop(id uint64, serverIntfs []netInterface) (done bool, err err
 	var ifaces []*pcc.InterfaceDetail
 
 	done = false
-	if ifaces, err = Pcc.GetIfacesByNodeId(id); err != nil {
+	if ifaces, err = pcc.Pcc.GetIfacesByNodeId(id); err != nil {
 		return
 	}
 
@@ -278,7 +278,7 @@ func serverConfigLoop(id uint64, serverIntfs []netInterface) (done bool, err err
 			continue
 		}
 
-		iface, err = Pcc.GetIfaceByMacAddress(mac, ifaces)
+		iface, err = pcc.Pcc.GetIfaceByMacAddress(mac, ifaces)
 		if err != nil {
 			return
 		}
@@ -288,7 +288,7 @@ func serverConfigLoop(id uint64, serverIntfs []netInterface) (done bool, err err
 		if err == nil {
 			delete(intfsToCheck, mac)
 		} else {
-			Pcc.SetIfaceApply(ifaceRequest)
+			pcc.Pcc.SetIfaceApply(ifaceRequest)
 		}
 	}
 	err = nil
@@ -373,7 +373,7 @@ func verifyNetworkInterfaces(t *testing.T) {
 					return
 				}
 				for _, i := range intfs {
-					intf, _ := Pcc.GetIfaceById(id, i)
+					intf, _ := pcc.Pcc.GetIfaceById(id, i)
 					if intf.Interface.IsManagement {
 						continue
 					}
@@ -396,7 +396,7 @@ func verifyNetworkInterfaces(t *testing.T) {
 				intf_count := len(intfs)
 				intf_up := 0
 				for _, i := range intfs {
-					intf, err := Pcc.GetIfaceById(id, i)
+					intf, err := pcc.Pcc.GetIfaceById(id, i)
 					if err != nil {
 						return
 					}
@@ -455,7 +455,7 @@ func verifyNetworkUp(t *testing.T) {
 					return
 				}
 				for _, i := range intfs {
-					intf, err := Pcc.GetIfaceById(id, i)
+					intf, err := pcc.Pcc.GetIfaceById(id, i)
 					if err != nil {
 						assert.Fatalf("getIfaceById: %v",
 							err)
@@ -482,7 +482,7 @@ func verifyNetworkUp(t *testing.T) {
 				intf_up := 0
 				admin_down := 0
 				for _, i := range intfs {
-					intf, _ := Pcc.GetIfaceById(id, i)
+					intf, _ := pcc.Pcc.GetIfaceById(id, i)
 					if !intf.Interface.ManagedByPcc {
 						intf_count--
 						continue
@@ -494,7 +494,7 @@ func verifyNetworkUp(t *testing.T) {
 				}
 
 				for _, i := range intfs {
-					intf, _ := Pcc.GetIfaceById(id, i)
+					intf, _ := pcc.Pcc.GetIfaceById(id, i)
 					if !intf.Interface.ManagedByPcc {
 						continue
 					}

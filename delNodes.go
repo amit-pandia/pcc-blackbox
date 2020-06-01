@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	pcc "github.com/platinasystems/pcc-blackbox/lib"
 	"github.com/platinasystems/test"
 	"testing"
 	"time"
@@ -14,7 +15,7 @@ func delAllNodes(t *testing.T) {
 
 func delNodes(t *testing.T) {
 	test.SkipIfDryRun(t)
-	if _, err := Pcc.DeleteNodes(true); err != nil {
+	if _, err := pcc.Pcc.DeleteNodes(true); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -28,7 +29,7 @@ func validateDeleteNodes(t *testing.T) {
 	start := time.Now()
 	timeout := 60 * 8 * time.Second // FIXME move to config
 	for true {
-		if nodes, err := Pcc.GetNodes(); err == nil {
+		if nodes, err := pcc.Pcc.GetNodes(); err == nil {
 		l1:
 			for k := range Nodes { // clear the map or remove deleted nodes
 				for _, node := range *nodes {

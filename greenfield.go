@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	pcc "github.com/platinasystems/pcc-blackbox/lib"
 	"os/exec"
 	"sync"
 	"testing"
@@ -16,7 +17,7 @@ func addGreenfieldServers(t *testing.T) {
 		mainError error
 	)
 
-	if err := Pcc.DeleteServers(true); err != nil { // wait for the deletion
+	if err := pcc.Pcc.DeleteServers(true); err != nil { // wait for the deletion
 		t.Fatal(err)
 	}
 
@@ -33,13 +34,13 @@ func addGreenfieldServers(t *testing.T) {
 			if err = cmd.Run(); err == nil {
 				for i := 1; i <= 30; i++ { //wait for the node
 					time.Sleep(time.Second * 15)
-					if nodes, err := Pcc.GetNodes(); err == nil {
+					if nodes, err := pcc.Pcc.GetNodes(); err == nil {
 						for _, node := range *nodes {
 							if node.Bmc == bmc {
 								fmt.Println(fmt.Sprintf("the pxeboot for the server [%s]ql node added with id [%d]", bmc, node.Id))
 								node.Host = host
 								server.Id = node.Id
-								if err = Pcc.UpdateNode(&node); err != nil { // Set the host address for the greenfield server
+								if err = pcc.Pcc.UpdateNode(&node); err != nil { // Set the host address for the greenfield server
 									mainError = err
 								}
 								return

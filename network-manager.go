@@ -57,8 +57,7 @@ func parseNetworkingConfig(t *testing.T) {
 	}
 	if identifier != "" {
 		*networkConfig = Env.NetworkConfiguration
-		networkConfig.PccClient = Pcc
-		if err = Pcc.ValidateNetworkConfig(networkConfig, identifier); err != nil {
+		if err = pcc.Pcc.ValidateNetworkConfig(networkConfig, identifier); err != nil {
 			err = fmt.Errorf("Failed to validate Networking Test config..ERROR:%v", err)
 		}
 	} else {
@@ -131,7 +130,7 @@ func createNetworkCluster(networkConfig *pcc.NetworkConfiguration) (err error) {
 	fmt.Println("Network cluster installation is starting")
 	if createRequest, err = getNetworkCreateClusterRequest(networkConfig); err == nil {
 		//TODO: Delete existing network cluster with same name if any
-		clusterId, err = networkConfig.PccClient.CreateNetworkCluster(createRequest)
+		clusterId, err = pcc.Pcc.CreateNetworkCluster(createRequest)
 		if err != nil {
 			if ! strings.Contains(err.Error(), "already exist") {
 				errMsg := fmt.Sprintf("Network cluster deployment failed..ERROR:%v", err)
@@ -153,7 +152,7 @@ func createNetworkCluster(networkConfig *pcc.NetworkConfiguration) (err error) {
 
 func verifyNetworkingInstallation(networkConfig *pcc.NetworkConfiguration) (err error) {
 	fmt.Printf("Verifying network cluster[%v] installation...Timeout:[%v sec]\n", networkConfig.ClusterName, pcc.NETWORK_3_NODE_INSTALLATION_TIMEOUT)
-	_, err = networkConfig.PccClient.GetNetworkCluster(networkConfig.ClusterName)
+	_, err = pcc.Pcc.GetNetworkCluster(networkConfig.ClusterName)
 	if err != nil {
 		errMsg := fmt.Sprintf("Network cluster[%v] installation verification failed...ERROR: %v", networkConfig.ClusterName, err)
 		err = fmt.Errorf("%v", errMsg)
@@ -174,7 +173,7 @@ func deleteNetworkCluster(networkConfig *pcc.NetworkConfiguration) (err error) {
 	time.Sleep(time.Second * 5)
 
 	if clusterId := networkConfig.GetNetworkClusterId(); clusterId != 0 {
-		err = networkConfig.PccClient.DeleteNetworkCluster(clusterId)
+		err = pcc.Pcc.DeleteNetworkCluster(clusterId)
 		if err != nil {
 			err = fmt.Errorf("Network cluster deletion failed..ERROR: %v", err)
 		} else {
@@ -188,7 +187,7 @@ func deleteNetworkCluster(networkConfig *pcc.NetworkConfiguration) (err error) {
 
 func verifyNetworkingUninstallation(networkConfig *pcc.NetworkConfiguration) (err error) {
 	fmt.Printf("Verifying network cluster[%v] uninstallation...Timeout:[%v sec]\n", networkConfig.ClusterName, pcc.NETWORK_3_NODE_UNINSTALLATION_TIMEOUT)
-	_, err = networkConfig.PccClient.GetNetworkCluster(networkConfig.ClusterName)
+	_, err = pcc.Pcc.GetNetworkCluster(networkConfig.ClusterName)
 		if strings.Contains(err.Error(), "not found") {err = nil}
 	if err != nil {
 		errMsg := fmt.Sprintf("network cluster[%v] uninstallation verification failed...ERROR: %v", networkConfig.ClusterName, err)

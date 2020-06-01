@@ -87,8 +87,7 @@ func parseCephConfig(t *testing.T) {
 	}
 	if identifier != "" {
 		*cephConfig = Env.CephConfiguration
-		cephConfig.PccClient = Pcc
-		if err = Pcc.ValidateCephConfig(cephConfig, identifier); err != nil {
+		if err = pcc.Pcc.ValidateCephConfig(cephConfig, identifier); err != nil {
 			err = fmt.Errorf("Failed to validate Ceph Test config..ERROR:%v", err)
 		}
 	} else {
@@ -121,7 +120,7 @@ func createCephCluster(cephConfig *pcc.CephConfiguration) (err error) {
 	fmt.Println("Ceph cluster installation is starting")
 	if createRequest, err = getCephCreateClusterRequest(cephConfig); err == nil {
 		//TODO: Delete existing ceph cluster with same name if any
-		clusterId, err = cephConfig.PccClient.CreateCephCluster(createRequest)
+		clusterId, err = pcc.Pcc.CreateCephCluster(createRequest)
 		if err != nil {
 			if ! strings.Contains(err.Error(), "already exist") {
 				errMsg := fmt.Sprintf("Ceph cluster deployment failed..ERROR:%v", err)
@@ -177,7 +176,7 @@ func createCephPool(cephConfig *pcc.CephConfiguration) (errAggr error) {
 			for pool, _ := range pools {
 				if createRequest, err := getCephPoolCreateRequest(pool, clusterId); err == nil {
 					fmt.Printf("Ceph pool [%v] creation is starting\n", pool)
-					poolId, err = cephConfig.PccClient.CreateCephPool(createRequest)
+					poolId, err = pcc.Pcc.CreateCephPool(createRequest)
 					if err != nil {
 						errMsg := fmt.Sprintf("Ceph pool [%v] creation failed..ERROR:%v", pool, err)
 						fmt.Println(errMsg)
@@ -232,7 +231,7 @@ func createCephFS(cephConfig *pcc.CephConfiguration) (err error) {
 	fmt.Printf("Ceph FS [%v] creation is starting\n", pcc.CEPH_FS_NAME)
 	if clusterId := cephConfig.GetCephClusterId(); clusterId != 0 {
 		if createRequest, err := getCephFSCreateRequest(cephConfig, pcc.CEPH_FS_NAME, clusterId); err == nil {
-			fsId, err = cephConfig.PccClient.CreateCephFS(createRequest)
+			fsId, err = pcc.Pcc.CreateCephFS(createRequest)
 			if err != nil {
 				errMsg := fmt.Sprintf("Ceph FS [%v] creation failed..ERROR:%v", pcc.CEPH_FS_NAME, err)
 				fmt.Println(errMsg)
@@ -249,19 +248,19 @@ func createCephFS(cephConfig *pcc.CephConfiguration) (err error) {
 
 func getCephFSCreateRequest(cephConfig *pcc.CephConfiguration, name string, clusterId uint64) (createRequest pcc.CreateCephFSRequest, err error) {
 	var metadataPool, defaultPool, dataPool1, dataPool2 *models.CephPool
-	metadataPool, err = cephConfig.PccClient.GetCephPool(pcc.CEPH_POOL_METADATA, clusterId)
+	metadataPool, err = pcc.Pcc.GetCephPool(pcc.CEPH_POOL_METADATA, clusterId)
 	if err != nil {
 		return
 	}
-	defaultPool, err = cephConfig.PccClient.GetCephPool(pcc.CEPH_POOL_DEFAULT, clusterId)
+	defaultPool, err = pcc.Pcc.GetCephPool(pcc.CEPH_POOL_DEFAULT, clusterId)
 	if err != nil {
 		return
 	}
-	dataPool1, err = cephConfig.PccClient.GetCephPool(pcc.CEPH_POOL_DATA_1, clusterId)
+	dataPool1, err = pcc.Pcc.GetCephPool(pcc.CEPH_POOL_DATA_1, clusterId)
 	if err != nil {
 		return
 	}
-	dataPool2, err = cephConfig.PccClient.GetCephPool(pcc.CEPH_POOL_DATA_2, clusterId)
+	dataPool2, err = pcc.Pcc.GetCephPool(pcc.CEPH_POOL_DATA_2, clusterId)
 	if err != nil {
 		return
 	}
@@ -294,13 +293,13 @@ func deleteCephFS(cephConfig *pcc.CephConfiguration) (err error) {
 	time.Sleep(time.Second * 5)
 
 	if clusterId := cephConfig.GetCephClusterId(); clusterId != 0 {
-		cephFS, errGet := cephConfig.PccClient.GetCephFS(pcc.CEPH_FS_NAME, clusterId)
+		cephFS, errGet := pcc.Pcc.GetCephFS(pcc.CEPH_FS_NAME, clusterId)
 		if errGet != nil {
 			err = fmt.Errorf("%v", errGet)
 		} else {
 			fsId := cephFS.Id
 			if fsId != 0 {
-				err = cephConfig.PccClient.DeleteCephFS(cephFS.Id)
+				err = pcc.Pcc.DeleteCephFS(cephFS.Id)
 				if err != nil {
 					err = fmt.Errorf("Ceph FS [%v] deletion failed..ERROR: %v", pcc.CEPH_FS_NAME, err)
 				} else {
@@ -338,7 +337,7 @@ func deleteCephPool(cephConfig *pcc.CephConfiguration) (errAggr error) {
 		for _, pools := range pcc.CephPools {
 			for pool, id := range pools {
 				fmt.Printf("Ceph pool [%v] deletion is starting\n", pool)
-				err := cephConfig.PccClient.DeleteCephPool(id)
+				err := pcc.Pcc.DeleteCephPool(id)
 				if err != nil {
 					err = fmt.Errorf("Ceph pool [%v] deletion failed..ERROR: %v", pool, err)
 					errAggr = fmt.Errorf(fmt.Sprint(errAggr) + fmt.Sprintf("%v\n", err))
@@ -372,7 +371,7 @@ func deleteCephCluster(cephConfig *pcc.CephConfiguration) (err error) {
 	time.Sleep(time.Second * 5)
 
 	if clusterId := cephConfig.GetCephClusterId(); clusterId != 0 {
-		err = cephConfig.PccClient.DeleteCephCluster(clusterId)
+		err = pcc.Pcc.DeleteCephCluster(clusterId)
 		if err != nil {
 			err = fmt.Errorf("Ceph cluster deletion failed..ERROR: %v", err)
 		} else {
@@ -454,7 +453,7 @@ func verifyCephPoolCreation(cephConfig *pcc.CephConfiguration) (err error) {
 	for _, pools := range pcc.CephPools {
 		for pool, _ := range pools {
 			fmt.Printf("Verifying ceph pool [%v] creation...Timeout:[%v sec]\n", pool, pcc.CEPH_POOL_CREATION_TIMEOUT)
-			_, errP := cephConfig.PccClient.GetCephPool(pool, cephConfig.ClusterId)
+			_, errP := pcc.Pcc.GetCephPool(pool, cephConfig.ClusterId)
 			if errP != nil {
 				errMsg := fmt.Sprintf("Ceph pool [%v] creation failed..ERROR: %v", pool, errP)
 				fmt.Println(errMsg)
@@ -528,7 +527,7 @@ func testVerifyCephInstallation(t *testing.T) {
 
 func verifyCephInstallation(cephConfig *pcc.CephConfiguration) (err error) {
 	fmt.Printf("Verifying ceph cluster[%v] installation...Timeout:[%v sec]\n", cephConfig.ClusterName, pcc.CEPH_3_NODE_INSTALLATION_TIMEOUT)
-	_, err = cephConfig.PccClient.GetCephCluster(cephConfig.ClusterName)
+	_, err = pcc.Pcc.GetCephCluster(cephConfig.ClusterName)
 	if err != nil {
 		errMsg := fmt.Sprintf("Ceph cluster[%v] installation verification failed...ERROR: %v", cephConfig.ClusterName, err)
 		err = fmt.Errorf("%v", errMsg)
@@ -559,7 +558,7 @@ func testVerifyCephUninstallation(t *testing.T) {
 
 func verifyCephUninstallation(cephConfig *pcc.CephConfiguration) (err error) {
 	fmt.Printf("Verifying ceph cluster[%v] uninstallation...Timeout:[%v sec]\n", cephConfig.ClusterName, pcc.CEPH_3_NODE_UNINSTALLATION_TIMEOUT)
-	_, err = cephConfig.PccClient.GetCephCluster(cephConfig.ClusterName)
+	_, err = pcc.Pcc.GetCephCluster(cephConfig.ClusterName)
 	if err != nil {
 		errMsg := fmt.Sprintf("Ceph cluster[%v] uninstallation verification failed...ERROR: %v", cephConfig.ClusterName, err)
 		err = fmt.Errorf("%v", errMsg)

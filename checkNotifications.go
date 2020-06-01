@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	pcc "github.com/platinasystems/pcc-blackbox/lib"
 	"github.com/platinasystems/tiles/pccserver/models"
 	"strings"
 	"time"
@@ -41,7 +42,7 @@ func syncCheckGenericInstallation(id uint64, appTimeout time.Duration, str2Check
 				events []models.Notification
 				err    error
 			)
-			events, err = Pcc.GetEvents()
+			events, err = pcc.Pcc.GetEvents()
 			if err != nil {
 				s.msg = fmt.Sprintf("failed to getEvents ERROR: %v", err)
 				s.isError = true

@@ -32,7 +32,6 @@ type NetworkConfiguration struct {
 	IgwPolicy        string          `json:"igwPolicy"`
 	ControlCIDR      string          `json:"controlCIDR"`
 	Tests            map[string]bool `json:"tests"`
-	PccClient        *PccClient
 }
 
 type CreateNetworkClusterRequest struct {
@@ -246,7 +245,7 @@ func (p *PccClient) ValidateNetworkConfig(config *NetworkConfiguration, identifi
 }
 
 func (config *NetworkConfiguration) VerifyNetwork(startTime time.Time, action string, name string) (s EventStatus, err error) {
-	s = config.PccClient.Verify(startTime, config.getNetworkVerifier(action, name))
+	s = Pcc.Verify(startTime, config.getNetworkVerifier(action, name))
 
 	failed := !(strings.Contains(s.Msg, fmt.Sprintf(NETWORK_INSTALLATION_SUCCESS_NOTIFICATION, name)) ||
 		strings.Contains(s.Msg, fmt.Sprintf(NETWORK_UNINSTALLATION_SUCCESS_NOTIFICATION, name)))

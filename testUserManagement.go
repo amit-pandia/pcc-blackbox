@@ -72,14 +72,14 @@ func testUMEntity(t *testing.T) {
 	genericTest(t,
 		"entity",
 		func(name string, description string) (genericModel *pcc.GenericModel, err error) {
-			return Pcc.AddEntity(name, description)
+			return pcc.Pcc.AddEntity(name, description)
 		},
 		func(id uint64) (genericModel *pcc.GenericModel, err error) {
-			return Pcc.GetEntity(id)
+			return pcc.Pcc.GetEntity(id)
 		},
 		nil,
 		func() (models []pcc.GenericModel, err error) {
-			return Pcc.GetEntities()
+			return pcc.Pcc.GetEntities()
 		},
 	)
 }
@@ -90,22 +90,22 @@ func testUMRole(t *testing.T) {
 	genericTest(t,
 		"role",
 		func(name string, description string) (genericModel *pcc.GenericModel, err error) {
-			return Pcc.AddRole(name, description)
+			return pcc.Pcc.AddRole(name, description)
 		},
 		func(id uint64) (genericModel *pcc.GenericModel, err error) {
-			return Pcc.GetSecurityRole(id)
+			return pcc.Pcc.GetSecurityRole(id)
 		},
 		func(id uint64) error {
-			return Pcc.DeleteRole(id)
+			return pcc.Pcc.DeleteRole(id)
 		}, func() (models []pcc.GenericModel, err error) {
-			return Pcc.GetSecurityRoles()
+			return pcc.Pcc.GetSecurityRoles()
 		},
 	)
 
 	// test the deletion of a role still used
 	if user, err := addTestUser(); err == nil {
-		defer Pcc.DelUser(user.UserName)
-		if errOk := Pcc.DeleteRole(user.Role.Id); errOk == nil {
+		defer pcc.Pcc.DelUser(user.UserName)
+		if errOk := pcc.Pcc.DeleteRole(user.Role.Id); errOk == nil {
 			t.Fatal(fmt.Sprintf("the role [%d] has been deleted", user.Role.Id))
 		} else {
 			fmt.Println(fmt.Sprintf("the system does not allowed to delete the role [%d]. [%s]", user.Role.Id, errOk.Error()))
@@ -132,7 +132,7 @@ func testUMOperation(t *testing.T) {
 		"operation",
 		nil, nil, nil,
 		func() (models []pcc.GenericModel, err error) {
-			return convert(Pcc.GetOperations)
+			return convert(pcc.Pcc.GetOperations)
 		},
 	)
 
@@ -140,7 +140,7 @@ func testUMOperation(t *testing.T) {
 		"groupoperation",
 		nil, nil, nil,
 		func() (models []pcc.GenericModel, err error) {
-			return convert(Pcc.GetGroupOperations)
+			return convert(pcc.Pcc.GetGroupOperations)
 		},
 	)
 }
@@ -152,13 +152,13 @@ func addTestUser() (user *pcc.User, err error) {
 
 	var roles []pcc.GenericModel
 
-	if roles, err = Pcc.GetSecurityRoles(); err == nil {
+	if roles, err = pcc.Pcc.GetSecurityRoles(); err == nil {
 		u.RoleId = roles[0].Id
 	} else {
 		return
 	}
 
-	if user, err = Pcc.AddUser(u); err == nil {
+	if user, err = pcc.Pcc.AddUser(u); err == nil {
 		fmt.Println(fmt.Sprintf("added the user [%d:%s] with role [%+v] and tenant [%+v]", user.Id, user.UserName, user.Role, user.Tenant))
 	}
 	return
@@ -171,13 +171,13 @@ func testUMUser(t *testing.T) {
 	if added, err := addTestUser(); err == nil {
 		user2 := *added
 		fmt.Println(fmt.Sprintf("trying add the same user %s", user2.UserName))
-		if _, errOk := Pcc.AddUser(user2); errOk == nil {
+		if _, errOk := pcc.Pcc.AddUser(user2); errOk == nil {
 			t.Fatal("the duplicate user was added without issues")
 		} else {
 			fmt.Println(fmt.Sprintf("the system does not allowed to re-add the user [%s]. [%s]", added.UserName, errOk.Error()))
 		}
 
-		if err = Pcc.DelUser(added.UserName); err == nil {
+		if err = pcc.Pcc.DelUser(added.UserName); err == nil {
 			fmt.Println(fmt.Sprintf("deleted the user %d %s", added.Id, added.UserName))
 		} else {
 			t.Fatal(err)
@@ -186,7 +186,7 @@ func testUMUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if users, err := Pcc.GetUsers(); err == nil {
+	if users, err := pcc.Pcc.GetUsers(); err == nil {
 		fmt.Println(fmt.Sprintf("found %d users", len(users)))
 	} else {
 		t.Fatal(err)
@@ -202,10 +202,10 @@ func testUMTenant(t *testing.T) {
 	name := fmt.Sprintf("%s-%d", "bb_test", time.Now().Unix())
 	tenant := &(pcc.Tenant{Tenant: model.Tenant{Name: name, Description: "blackbox test"}})
 	fmt.Println(fmt.Sprintf("adding the tenant %s", name))
-	if tenant, err = Pcc.AddTenant(*tenant); err == nil {
+	if tenant, err = pcc.Pcc.AddTenant(*tenant); err == nil {
 		fmt.Println(fmt.Sprintf("added the tenant %v", *tenant))
 
-		if tenant, err = Pcc.GetTenant(tenant.ID); err == nil {
+		if tenant, err = pcc.Pcc.GetTenant(tenant.ID); err == nil {
 			if tenant.Name == name {
 				fmt.Println(fmt.Sprintf("the fetched tenant %s is ok", name))
 			} else {
@@ -215,7 +215,7 @@ func testUMTenant(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err = Pcc.DelTenant(tenant.ID); err == nil {
+		if err = pcc.Pcc.DelTenant(tenant.ID); err == nil {
 			fmt.Println(fmt.Sprintf("deleted the tenant %d %s", tenant.ID, tenant.Name))
 		} else {
 			t.Fatal(err)
@@ -225,7 +225,7 @@ func testUMTenant(t *testing.T) {
 	}
 
 	// get all tenants
-	if tenants, err := Pcc.GetTenants(); err == nil {
+	if tenants, err := pcc.Pcc.GetTenants(); err == nil {
 		fmt.Println(fmt.Sprintf("found %d tenants", len(tenants)))
 	} else {
 		t.Fatal(err)
@@ -233,8 +233,8 @@ func testUMTenant(t *testing.T) {
 
 	// test the deletion of a tenant still used
 	if user, err := addTestUser(); err == nil {
-		defer Pcc.DelUser(user.UserName)
-		if errOk := Pcc.DelTenant(user.Tenant.ID); errOk == nil {
+		defer pcc.Pcc.DelUser(user.UserName)
+		if errOk := pcc.Pcc.DelTenant(user.Tenant.ID); errOk == nil {
 			t.Fatal(fmt.Sprintf("the tenant has been deleted [%d]", user.TenantId))
 		} else {
 			fmt.Println(fmt.Sprintf("the system does not allowed to delete the tenant [%d]. [%s]", user.TenantId, errOk.Error()))
@@ -248,11 +248,11 @@ func testUMTenant(t *testing.T) {
 func testUMUserSpace(t *testing.T) {
 	scope := "bb-test"
 	content := "blackbox test"
-	if err := Pcc.SetUserSpace("bb-test", content); err == nil {
+	if err := pcc.Pcc.SetUserSpace("bb-test", content); err == nil {
 		fmt.Println(fmt.Sprintf("added the user space [%s]", scope))
 
 		var get string
-		if get, err = Pcc.GetUserSpace(scope); err == nil {
+		if get, err = pcc.Pcc.GetUserSpace(scope); err == nil {
 			if get == content {
 				fmt.Println(fmt.Sprintf("the fetched user space %s is ok", scope))
 			} else {
@@ -261,7 +261,7 @@ func testUMUserSpace(t *testing.T) {
 		} else {
 			t.Fatal(err)
 		}
-		if err = Pcc.DeleteUserSpace(scope); err == nil {
+		if err = pcc.Pcc.DeleteUserSpace(scope); err == nil {
 			fmt.Println(fmt.Sprintf("deleted the user space %s", scope))
 		} else {
 			t.Fatal(err)

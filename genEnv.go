@@ -23,7 +23,7 @@ func addTestTestNode(testNode *pcc.NodeDetail) {
 	n.BMCPass = testNode.BmcPassword
 	n.KeyAlias = []string{"test_0"}
 
-	ifaces, err := Pcc.GetIfacesByNodeId(testNode.Id)
+	ifaces, err := pcc.Pcc.GetIfacesByNodeId(testNode.Id)
 	if err != nil {
 		fmt.Printf("error node %v: %v\n", testNode.Id, err)
 		return
@@ -71,7 +71,7 @@ func genEnv() {
 
 	outEnv.PccIp = Env.PccIp
 
-	nodes, err := Pcc.GetNodesDetail()
+	nodes, err := pcc.Pcc.GetNodesDetail()
 	if err != nil {
 		fmt.Printf("Failed to GetNodes: %v\n", err)
 		return

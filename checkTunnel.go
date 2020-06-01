@@ -12,7 +12,7 @@ import (
 // Check if server is reaching the PCC through the tunnel
 func checkInvaderTunnels(t *testing.T) {
 	fmt.Println("\nTUNNEL: checking the tunnel addresses for the invaders")
-	if nodes, err := Pcc.GetInvaders(); err == nil {
+	if nodes, err := pcc.Pcc.GetInvaders(); err == nil {
 
 		for i := range *nodes {
 			node := (*nodes)[i]
@@ -20,7 +20,7 @@ func checkInvaderTunnels(t *testing.T) {
 
 			checkEnvironmentForNode(t, &node) // Check for the environment address
 
-			if node, err := Pcc.GetNodeFromDB(nodeId); err == nil { // Check the DB
+			if node, err := pcc.Pcc.GetNodeFromDB(nodeId); err == nil { // Check the DB
 				address := node.TunnelServerAddress
 				if len(strings.TrimSpace(address)) == 0 {
 					t.Fatal(fmt.Sprintf("The tunnel address for the invader %d:%s is blank", nodeId, node.Name))
@@ -39,15 +39,15 @@ func checkInvaderTunnels(t *testing.T) {
 // Check if server is reaching the PCC through the cluster-head tunnel
 func checkServerTunnels(t *testing.T) {
 	fmt.Println("\nTUNNEL: checking the tunnel addresses for the servers")
-	if invaders, err := Pcc.GetInvadersFromDB(); err == nil {
-		if nodes, err := Pcc.GetServers(); err == nil {
+	if invaders, err := pcc.Pcc.GetInvadersFromDB(); err == nil {
+		if nodes, err := pcc.Pcc.GetServers(); err == nil {
 		loopServer:
 			for i := range *nodes {
 				node := (*nodes)[i]
 				nodeId := node.Id
 				address := checkEnvironmentForNode(t, &node) // Check for the environment address
 
-				if node, err := Pcc.GetNodeFromDB(nodeId); err == nil { // Check the DB. The address should be blank
+				if node, err := pcc.Pcc.GetNodeFromDB(nodeId); err == nil { // Check the DB. The address should be blank
 					address := node.TunnelServerAddress
 					if len(strings.TrimSpace(address)) != 0 {
 						t.Fatal(fmt.Sprintf("The tunnel address for the server %d:%s should be blank instead of %s", nodeId, node.Name, node.TunnelServerAddress))
@@ -78,11 +78,11 @@ func checkServerTunnels(t *testing.T) {
 func checkEnvironmentForNode(t *testing.T, node *pcc.NodeWithKubernetes) (address string) {
 	fmt.Println(fmt.Sprintf("Tunnel: checking the tunnel address for the node %d:%s:%s", node.Id, node.Name, node.Host))
 
-	if defaultEnv, err := Pcc.GetEnvironment(nil); err == nil {
+	if defaultEnv, err := pcc.Pcc.GetEnvironment(nil); err == nil {
 		defaultAddress := defaultEnv["servicePublicHost"]
 		nodeId := node.Id
 
-		if env, err := Pcc.GetEnvironment(&nodeId); err == nil { // Check the environment
+		if env, err := pcc.Pcc.GetEnvironment(&nodeId); err == nil { // Check the environment
 			hAddress := env["servicePublicHost"]
 			if diff := deep.Equal(defaultAddress, hAddress); diff == nil {
 				t.Fatal(fmt.Sprintf("The tunnel address should be different from the PCC address %v", defaultAddress))
@@ -103,7 +103,7 @@ func checkEnvironmentForNode(t *testing.T, node *pcc.NodeWithKubernetes) (addres
 // Check if invader is reaching the PCC through the tunnel
 func checkTunnelConnection(t *testing.T) {
 	fmt.Println("\nTUNNEL: checking invaders connection")
-	if nodes, err := Pcc.GetInvadersFromDB(); err == nil {
+	if nodes, err := pcc.Pcc.GetInvadersFromDB(); err == nil {
 		for i := range *nodes {
 			node := (*nodes)[i]
 
@@ -137,7 +137,7 @@ func checkTunnelForwardingRules(t *testing.T) {
 	fmt.Println("\nTUNNEL: checking forwarding rules")
 	var ssh pcc.SSHHandler
 
-	if nodes, err := Pcc.GetInvadersFromDB(); err == nil {
+	if nodes, err := pcc.Pcc.GetInvadersFromDB(); err == nil {
 		for i := range *nodes {
 			node := (*nodes)[i]
 			nodeId := node.Id
@@ -171,7 +171,7 @@ func checkTunnelRestore(t *testing.T) {
 	fmt.Println("\nTUNNEL: checking the restore for the invaders")
 	var ssh pcc.SSHHandler
 
-	if nodes, err := Pcc.GetInvadersFromDB(); err == nil {
+	if nodes, err := pcc.Pcc.GetInvadersFromDB(); err == nil {
 		for i := range *nodes {
 			node := (*nodes)[i]
 			nodeId := node.Id

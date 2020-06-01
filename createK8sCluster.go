@@ -60,7 +60,7 @@ func createK8s_3nodes(t *testing.T) {
 		CniPlugin:  "kube-router",
 		Nodes:      k8sNodes,
 	}
-	err = Pcc.CreateKubernetes(k8sRequest)
+	err = pcc.Pcc.CreateKubernetes(k8sRequest)
 	if err != nil {
 		assert.Fatalf("%v", err)
 		return
@@ -76,7 +76,7 @@ func validateK8sCluster(t *testing.T) {
 		err error
 	)
 
-	id, err = Pcc.FindKubernetesId(k8sname)
+	id, err = pcc.Pcc.FindKubernetesId(k8sname)
 	if err != nil {
 		assert.Fatalf("Failed to find cluster %v: %v", k8sname, err)
 		return
@@ -92,7 +92,7 @@ func validateK8sCluster(t *testing.T) {
 			assert.Fatalf("Timed out waiting for Kubernetes")
 			return
 		case <-tick:
-			status, percent, err := Pcc.GetKubernetesDeployStatus(id)
+			status, percent, err := pcc.Pcc.GetKubernetesDeployStatus(id)
 			if err != nil {
 				assert.Fatalf("Failed to get deploy status "+
 					"%v\n", err)
@@ -131,7 +131,7 @@ func validateK8sCluster(t *testing.T) {
 			assert.Fatalf("health check timed out\n")
 			return
 		case <-tick:
-			health, err := Pcc.GetKubernetesHealth(id)
+			health, err := pcc.Pcc.GetKubernetesHealth(id)
 			if err != nil {
 				assert.Fatalf("Error geting K8s health\n")
 				return
@@ -154,18 +154,18 @@ func deleteAllK8sCluster(t *testing.T) {
 	test.SkipIfDryRun(t)
 	assert := test.Assert{t}
 
-	clusters, err := Pcc.GetKubernetes()
+	clusters, err := pcc.Pcc.GetKubernetes()
 	if err != nil {
 		assert.Fatalf("Failed to get kubernetes clusters: %v\n", err)
 		return
 	}
 
 	for _, c := range clusters {
-		err := Pcc.DeleteKubernetes(c.ID, false)
+		err := pcc.Pcc.DeleteKubernetes(c.ID, false)
 		if err != nil {
 			fmt.Printf("delete K8s cluster failed, try force: %v",
 				err)
-			err := Pcc.DeleteKubernetes(c.ID, true)
+			err := pcc.Pcc.DeleteKubernetes(c.ID, true)
 			if err != nil {
 				assert.Fatalf("force delete failed: %v", err)
 				return
@@ -181,7 +181,7 @@ func deleteAllK8sCluster(t *testing.T) {
 				assert.Fatalf("Time out deleting Kubernetes")
 				return
 			case <-tick:
-				cluster, err := Pcc.GetKubernetesId(c.ID)
+				cluster, err := pcc.Pcc.GetKubernetesId(c.ID)
 				if err != nil && strings.Contains(err.Error(),
 					"doesn't exist") {
 					fmt.Printf("K8s delete OK\n")

@@ -31,12 +31,12 @@ func CreateFileAndUpload(fileName string, key string, fileType string) (err erro
 		var (
 			exist bool
 		)
-		exist, _, err = Pcc.FindSecurityKey(fileName)
+		exist, _, err = pcc.Pcc.FindSecurityKey(fileName)
 		if exist {
-			Pcc.DeleteKey(fileName)
+			pcc.Pcc.DeleteKey(fileName)
 		}
 
-		_, err = Pcc.UploadKey(filePath, fileName, fileType, "")
+		_, err = pcc.Pcc.UploadKey(filePath, fileName, fileType, "")
 		if err != nil {
 			return
 		}
@@ -45,12 +45,12 @@ func CreateFileAndUpload(fileName string, key string, fileType string) (err erro
 			cert  pcc.Certificate
 			exist bool
 		)
-		exist, cert, err = Pcc.FindCertificate(fileName)
+		exist, cert, err = pcc.Pcc.FindCertificate(fileName)
 		if exist {
-			Pcc.DeleteCertificate(cert.Id)
+			pcc.Pcc.DeleteCertificate(cert.Id)
 		}
 
-		_, err = Pcc.UploadCert(filePath, fileName, "")
+		_, err = pcc.Pcc.UploadCert(filePath, fileName, "")
 		if err != nil {
 			return
 		}
@@ -69,7 +69,7 @@ func delAllCerts(t *testing.T) {
 		err          error
 	)
 
-	certificates, err = Pcc.GetCertificates()
+	certificates, err = pcc.Pcc.GetCertificates()
 	if err != nil {
 		assert.Fatalf("Failed to get certificates: %v\n", err)
 		return
@@ -78,7 +78,7 @@ func delAllCerts(t *testing.T) {
 	for _, c := range certificates {
 		id = c.Id
 		fmt.Printf("Deleting certificate %v\n", c.Alias)
-		err = Pcc.DeleteCertificate(id)
+		err = pcc.Pcc.DeleteCertificate(id)
 		if err != nil {
 			assert.Fatalf("Failed to delete Certificate %v: %v\n",
 				id, err)

@@ -43,7 +43,7 @@ func updateBmcInfo(t *testing.T) {
 			addReq.Managed = pBool
 			addReq.Console = "ttyS1"
 
-			if err = Pcc.UpdateNode(&addReq); err != nil {
+			if err = pcc.Pcc.UpdateNode(&addReq); err != nil {
 				assert.Fatalf("Failed to update BMC info: %v\n", err)
 				return
 			}
@@ -75,7 +75,7 @@ func reimageAllBrown(t *testing.T) {
 		request.SSHKeys = keys
 
 		fmt.Println(request)
-		if err = Pcc.MaasDeploy(request); err != nil {
+		if err = pcc.Pcc.MaasDeploy(request); err != nil {
 			assert.Fatalf("MaasDeploy failed: %v\n", err)
 		}
 
@@ -84,7 +84,7 @@ func reimageAllBrown(t *testing.T) {
 
 		for {
 			for i, id := range nodesList {
-				status, err := Pcc.GetProvisionStatus(id)
+				status, err := pcc.Pcc.GetProvisionStatus(id)
 				if err != nil {
 					fmt.Printf("Node %v error: %v\n", id, err)
 					continue

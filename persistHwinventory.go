@@ -60,7 +60,7 @@ func checkHardWareInventory(t *testing.T) {
 		err  error
 	)
 
-	hwInventory, err = Pcc.GetHardwareInventory()
+	hwInventory, err = pcc.Pcc.GetHardwareInventory()
 	if err != nil {
 		assert.Fatalf("GetHardwareInventory failed: %v\n", err)
 		return
@@ -90,7 +90,7 @@ func checkStorage(t *testing.T) {
 		err     error
 	)
 
-	storage, err = Pcc.GetStorageNode(PxeBootSelectedNodeId)
+	storage, err = pcc.Pcc.GetStorageNode(PxeBootSelectedNodeId)
 	if err != nil {
 		assert.Fatalf("GetStorageNode failed: %v\n", err)
 		return

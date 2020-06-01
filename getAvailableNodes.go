@@ -1,6 +1,7 @@
 package main
 
 import (
+	pcc "github.com/platinasystems/pcc-blackbox/lib"
 	"github.com/platinasystems/test"
 	"testing"
 )
@@ -12,7 +13,7 @@ func getNodes(t *testing.T) {
 func getAvailableNodes(t *testing.T) {
 	test.SkipIfDryRun(t)
 	assert := test.Assert{t}
-	if nodes, err := Pcc.GetNodes(); err == nil {
+	if nodes, err := pcc.Pcc.GetNodes(); err == nil {
 		for i := 0; i < len(*nodes); i++ {
 			node := (*nodes)[i]
 			id := node.Id

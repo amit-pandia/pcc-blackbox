@@ -20,7 +20,6 @@ import (
 
 var Env testEnv
 var envFile string = "testEnv.json"
-var Pcc *pcc.PccClient
 
 var Nodes = make(map[uint64]*pcc.NodeWithKubernetes)
 var SecurityKeys = make(map[string]*pcc.SecurityKey)
@@ -61,7 +60,7 @@ func TestMain(m *testing.M) {
 		UserName: "admin",
 		Password: "admin",
 	}
-	if Pcc, err = pcc.Authenticate(Env.PccIp, credential); err != nil {
+	if pcc.Pcc, err = pcc.Authenticate(Env.PccIp, credential); err != nil {
 		panic(fmt.Errorf("Authentication error: %v\n", err))
 	}
 

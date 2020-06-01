@@ -61,7 +61,7 @@ func installPortus(t *testing.T) {
 	)
 
 	for id, node := range Nodes {
-		if Pcc.IsNodeOnline(node.Id) {
+		if pcc.Pcc.IsNodeOnline(node.Id) {
 			portusConfiguration = Env.PortusConfiguration
 			portusConfiguration.NodeID = id
 			portusConfiguration.Name = fmt.Sprintf("portus_%v", id)
@@ -69,7 +69,7 @@ func installPortus(t *testing.T) {
 			if Env.AuthenticationProfile.Name == "" {
 				fmt.Println("Authenticatiom Profile is not defined in the configuration file, Portus will be installed without it")
 			} else {
-				authProfile, err := Pcc.GetAuthProfileByName(CurrentAuthProfileName)
+				authProfile, err := pcc.Pcc.GetAuthProfileByName(CurrentAuthProfileName)
 				if err == nil {
 					portusConfiguration.AuthenticationProfileId = &authProfile.ID
 				} else {
@@ -77,14 +77,14 @@ func installPortus(t *testing.T) {
 				}
 			}
 
-			exist, certificate, err := Pcc.FindCertificate(PORTUS_CERT_FILENAME)
+			exist, certificate, err := pcc.Pcc.FindCertificate(PORTUS_CERT_FILENAME)
 			if err != nil {
 				fmt.Printf("Get certificate %s failed\n%v\n", PORTUS_CERT_FILENAME, err)
 			} else if exist {
 				portusConfiguration.RegistryCertId = &certificate.Id
 			}
 
-			exist, privateKey, err := Pcc.FindSecurityKey(PORTUS_KEY_FILENAME)
+			exist, privateKey, err := pcc.Pcc.FindSecurityKey(PORTUS_KEY_FILENAME)
 			if err != nil {
 				fmt.Printf("Get private key %s failed\n%v\n", PORTUS_KEY_FILENAME, err)
 			} else if exist {
@@ -94,7 +94,7 @@ func installPortus(t *testing.T) {
 			fmt.Printf("Installing Portus on Node with id %v\n",
 				node.Id)
 
-			err = Pcc.InstallPortusNode(portusConfiguration)
+			err = pcc.Pcc.InstallPortusNode(portusConfiguration)
 			if err != nil {
 				fmt.Printf("Portus installation in %v failed\n%v\n", node.Host, err)
 				fmt.Printf("Trying in another node\n")
@@ -115,7 +115,7 @@ func checkPortus(t *testing.T) {
 
 	for id, node := range Nodes {
 		if idInSlice(node.Id, PortusSelectedNodeIds) {
-			check, err := Pcc.WaitForInstallation(id, PORTUS_TIMEOUT, PORTUS_NOTIFICATION, "", nil)
+			check, err := pcc.Pcc.WaitForInstallation(id, PORTUS_TIMEOUT, PORTUS_NOTIFICATION, "", nil)
 			if err != nil {
 				assert.Fatalf("Portus installation has failed\n%v\n", err)
 			}
@@ -136,7 +136,7 @@ func delAllPortus(t *testing.T) {
 		id            uint64
 	)
 
-	portusConfigs, err = Pcc.GetPortusNodes()
+	portusConfigs, err = pcc.Pcc.GetPortusNodes()
 	if err != nil {
 		assert.Fatalf("Failed to get portus nodes: %v\n", err)
 		return
@@ -145,7 +145,7 @@ func delAllPortus(t *testing.T) {
 	for _, p := range portusConfigs {
 		fmt.Printf("Deleting Portus %v\n", p.Name)
 		id = p.ID
-		err = Pcc.DelPortusNode(id, true)
+		err = pcc.Pcc.DelPortusNode(id, true)
 		if err != nil {
 			assert.Fatalf("Failed to delete Portus %v: %v\n",
 				p.Name, err)
@@ -158,7 +158,7 @@ func delAllPortus(t *testing.T) {
 		for !done {
 			select {
 			case <-tick:
-				_, err = Pcc.GetPortusNodeById(id)
+				_, err = pcc.Pcc.GetPortusNodeById(id)
 				if err != nil {
 					mesg := err.Error()
 					if strings.Contains(mesg,

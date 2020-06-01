@@ -37,12 +37,12 @@ func updateSecurityKey_MaaS(t *testing.T) {
 	for i := 0; ; i++ {
 		label := fmt.Sprintf("test_%d", i)
 		description := "Don't be evil"
-		exist, err := Pcc.CheckKeyLabelExists(label)
+		exist, err := pcc.Pcc.CheckKeyLabelExists(label)
 		if err != nil {
 			assert.Fatalf("%v\n", err)
 		}
 		if !exist {
-			_, err = Pcc.UploadKey("./maas_pubkey", label,
+			_, err = pcc.Pcc.UploadKey("./maas_pubkey", label,
 				pcc.PUBLIC_KEY, description)
 			if err != nil {
 				assert.Fatalf("%v\n", err)
@@ -61,14 +61,14 @@ func delAllKeys(t *testing.T) {
 		err     error
 	)
 
-	secKeys, err = Pcc.GetSecurityKeys()
+	secKeys, err = pcc.Pcc.GetSecurityKeys()
 	if err != nil {
 		assert.Fatalf("Failed to GetSecurityKeys: %v\n", err)
 		return
 	}
 
 	for i := 0; i < len(secKeys); i++ {
-		err = Pcc.DeleteKey(secKeys[i].Alias)
+		err = pcc.Pcc.DeleteKey(secKeys[i].Alias)
 		if err != nil {
 			assert.Fatalf("Failed to delete key %v: %v\n",
 				secKeys[i].Alias, err)

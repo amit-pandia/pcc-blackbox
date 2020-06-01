@@ -32,13 +32,13 @@ func addSites(t *testing.T) {
 		fmt.Printf("add site %v\n", x.name)
 		site.Name = x.name
 		site.Description = x.description
-		err := Pcc.AddSite(site)
+		err := pcc.Pcc.AddSite(site)
 		if err != nil {
 			assert.Fatalf("%v\n", err)
 		}
 	}
 
-	if site, err := Pcc.FindSite("OSL"); err != nil {
+	if site, err := pcc.Pcc.FindSite("OSL"); err != nil {
 		assert.Fatalf("%v\n", err)
 	} else {
 		fmt.Printf("found site %v\n", site.Name)
@@ -54,13 +54,13 @@ func delSites(t *testing.T) {
 		err   error
 	)
 	fmt.Println("Get sites")
-	sites, err = Pcc.GetSites()
+	sites, err = pcc.Pcc.GetSites()
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
 	for _, s := range sites {
 		fmt.Printf("found site %v\n", s.Name)
-		err = Pcc.DelSite(s.Id)
+		err = pcc.Pcc.DelSite(s.Id)
 		if err != nil {
 			assert.Fatalf("%v\n", err)
 		}
@@ -75,7 +75,7 @@ func addAssignSite(t *testing.T) {
 	addReq.Name = "SJC"
 	addReq.Description = "San Jose"
 	fmt.Printf("add site %v\n", addReq.Name)
-	err := Pcc.AddSite(addReq)
+	err := pcc.Pcc.AddSite(addReq)
 	if err != nil {
 		assert.Fatalf("%v\n", err)
 	}
@@ -90,14 +90,14 @@ func delAllSites(t *testing.T) {
 		err   error
 	)
 
-	sites, err = Pcc.GetSites()
+	sites, err = pcc.Pcc.GetSites()
 	if err != nil {
 		assert.Fatalf("Failed to GetSites: %v\n", err)
 		return
 	}
 	for _, s := range sites {
 		fmt.Printf("deleting site %v\n", s.Name)
-		err = Pcc.DelSite(s.Id)
+		err = pcc.Pcc.DelSite(s.Id)
 		if err != nil {
 			assert.Fatalf("Failed to DelSite %v: %v\n", s.Name, err)
 		}

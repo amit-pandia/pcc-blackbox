@@ -32,7 +32,7 @@ func addNodesAndCheckStatus(t *testing.T, nodes []node) {
 	//Check Agent and collector installation function. FIXME add a channel for stopping on error
 	waitInstallation := func(timeout time.Duration, app string, nodeId uint64, from *time.Time) {
 		fmt.Printf("Checking %s installation for nodeId:%v from %s \n", app, nodeId, from.String())
-		check, waitErr := Pcc.WaitForInstallation(nodeId, timeout, app, "", from)
+		check, waitErr := pcc.Pcc.WaitForInstallation(nodeId, timeout, app, "", from)
 		if waitErr != nil {
 			fmt.Printf("\n%v\n", waitErr)
 			err = waitErr
@@ -57,7 +57,7 @@ func addNodesAndCheckStatus(t *testing.T, nodes []node) {
 
 		if Nodes[NodebyHostIP[node.Host]] == nil { // add the node
 			fmt.Printf("adding the node %s\n", node.Host)
-			if routineError = Pcc.AddNode(&node); routineError == nil {
+			if routineError = pcc.Pcc.AddNode(&node); routineError == nil {
 				n.Id = node.Id
 				node.Invader = true
 				Nodes[node.Id] = &node
@@ -77,13 +77,13 @@ func addNodesAndCheckStatus(t *testing.T, nodes []node) {
 				)
 				for true {
 					time.Sleep(10 * time.Second)
-					if status, ignore = Pcc.GetProvisionStatus(node.Id); ignore == nil { // early check for add fail
+					if status, ignore = pcc.Pcc.GetProvisionStatus(node.Id); ignore == nil { // early check for add fail
 						if strings.Contains(status, "Add node failed") {
 							err = fmt.Errorf("%s for node %d", status, node.Id)
 							t.Fatal(err)
 						}
 					}
-					if connection, ignore = Pcc.GetNodeConnectionStatus(node.Id); ignore == nil {
+					if connection, ignore = pcc.Pcc.GetNodeConnectionStatus(node.Id); ignore == nil {
 						switch connection { // FIXME use models
 						case "online":
 							fmt.Printf("the node %d:%s is online\n", node.Id, node.Host)
